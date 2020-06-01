@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+        body {
+            background-color: #d5b9db;
+            background-image: url(./cats/crystalball.gif);
+            background-repeat: no-repeat;
+            background-size: 650px;
+            background-position: center left ;
+        }
+
+        .card {
+            width: 150px;
+            height: 150px;
+            /* 設定子元素在 3D 空間內 */
+            transform-style: preserve-3d;
+            position: relative;
+            /* 整張卡片的旋轉 */
+            transform: rotateY(180deg);
+            /* 0.5秒翻轉動畫 */
+            transition: transform .5s;
+            float: left;
+            margin: 10px;
+        }
+
+        .front {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: 0px 0px 5px 1.5px rgb(255, 255, 255);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+        }
+
+        .back {
+            width: 100%;
+            height: 100%;
+            background-image: url(./cats/cardback.gif);
+            border-radius: 15px;
+            box-shadow: 0px 0px 5px 1.5px rgb(255, 255, 255);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            /* 把背面的 div 轉到 front 後面貼齊 */
+            transform: rotateY(180deg);
+            backface-visibility: hidden;
+        }
+
+        #game {
+            width: 1100px;
+            margin: auto;
+            margin: center top;
+            margin-top: 5.5%;
+            margin-left: 36%;
+            cursor: url(./cats/star1.png), auto;
+        }
+
+        /* #all {
+            width: 1800px;
+            margin: auto;
+            margin-top: 5%;
+            margin-left:20%;
+            cursor: url(./cats/star1.png), auto;
+        } */
+
+        #game:active {
+            cursor: url(../cats/star2.png), auto;
+        }
+
+        .open {
+            transform: rotateY(0deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- <div id="all"> -->
+    <div id="game"></div>
+    <!-- </div> -->
+
+    <script src="./jquery-3.5.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script>
+
+        $(function () {
+            for (let i = 0; i < 24; i++) {
+                $("#game").append(`
+            <div class="card">
+            <div class="front"></div>
+            <div class="back"></div>
+            </div>`)
+            }
+
+            // 指定數字
+            for (let i = 0; i < $(".card").length; i++) {
+                let num = i % ($(".card").length / 2) + 1;
+                $(".card").eq(i).find(".front").css("background-image", `url(./cats/${num}.gif`)
+                $(".card").eq(i).attr("data-card", num);
+            }
+
+            // 換10次牌
+            for (let i = 0; i < 10; i++) {
+
+                //  隨機抽一張牌, 移動到隨機一張牌後面
+                let target = Math.floor(Math.random() * $(".card").length);
+                let dist = Math.floor(Math.random() * $(".card").length);
+                $(".card").eq(target).insertAfter($(".card").eq(dist));
+            }
+
+            $(".card").on('click', function () {
+                // 如果已翻開的牌數量小於 2 , 且這張沒翻開
+                if ($(".open").length < 2 && !$(this).hasClass("open")) {
+                    $(this).addClass("open");
+                }
+                if ($(".open").length == 2) {
+                    // 過一秒後翻回來
+                    setTimeout(() => {
+                        $(".open").removeClass("open")
+                    }, 1000);
+
+
+                    // 如果兩張一樣
+                    if ($(".open").eq(0).find(".front").css("background-image") ==
+                        $(".open").eq(1).find(".front").css("background-image")) {
+                        $(".open").fadeTo(1000, 0).addClass("ok")
+                    }
+
+                    if ($(".ok").length == $(".card").length) {
+                        setTimeout(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '喵~恭喜',
+                                text: '恭喜過關!貓貓愛你~'
+                            })
+                        }, 1000);
+                    }
+                }
+            })
+
+        })
+    </script>
+</body>
+
+</html>
